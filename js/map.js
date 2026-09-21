@@ -21,7 +21,7 @@
       return `<circle class="pin" cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5"/>`;
     }).join('');
     const i = M.inset;
-    el.innerHTML = `<svg viewBox="0 0 ${M.W} ${M.H}" role="img" aria-label="日本地図"><rect class="inset" x="${i.x}" y="${i.y}" width="${i.w}" height="${i.h}" rx="6"/>${paths}${pins}</svg>`;
+    el.innerHTML = `<svg viewBox="-2 -2 ${M.W + 4} ${M.H + 4}" role="img" aria-label="日本地図"><rect class="inset" x="${i.x}" y="${i.y}" width="${i.w}" height="${i.h}" rx="6"/>${paths}${pins}</svg>`;
     el.querySelector('svg').addEventListener('click', (e) => {
       const t = e.target.closest('.pref');
       if (t && opts.onSelect) opts.onSelect(Number(t.dataset.id));

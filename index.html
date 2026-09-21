@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>日本全国絶景マップ</title>
+  <meta name="theme-color" content="#1e6fd9">
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header class="top">
+    <a class="brand" href="#/">絶景<span>マップ</span></a>
+    <form id="searchForm" class="search" role="search">
+      <input id="q" type="search" placeholder="スポット・県・地域・キーワード" aria-label="検索">
+      <button type="submit">検索</button>
+    </form>
+  </header>
+  <nav class="seasons" id="seasons" aria-label="季節"></nav>
+  <main id="view"></main>
+  <nav class="tabbar" id="tabbar">
+    <a href="#/" data-r="home">🗾<span>ホーム</span></a>
+    <a href="#/list" data-r="list">🔍<span>さがす</span></a>
+    <a href="#/ranking" data-r="ranking">🏆<span>ランキング</span></a>
+    <a href="#/random" data-r="random">🎲<span>どこ行く?</span></a>
+    <a href="#/admin" data-r="admin">⚙️<span>管理</span></a>
+  </nav>
+  <script src="data/prefectures.js"></script>
+  <script src="js/util.js"></script>
+  <script src="data/spots.js"></script>
+  <script src="data/photos.js"></script>
+  <script src="data/japan-map.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/filter.js"></script>
+  <script src="js/candidates.js"></script>
+  <script src="js/map.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/views.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
