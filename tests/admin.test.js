@@ -33,3 +33,20 @@ test('サンプル候補: 重複/新規/不正の判定とhttps出典の保持',
   eq(r.map((x) => x.kind), ['duplicate', 'new', 'invalid']);
   eq(A.sanitizeCandidate(cands[0]).sources[0].url, 'https://example.com/fuji');
 });
+
+test('buildSpot: __dropped等の内部項目を含めず、件数は別に返す', () => {
+  const v = { name: 'テスト', yomi: '', prefectures: [1], lat: '43.1', lng: '141.2', rating: '4', categories: [], seasons: [],
+    description: '', access: '', photos: 'https://ok.example/a.jpg\njavascript:alert(1)\nexample.com', mapUrl: 'javascript:alert(2)', keywords: 'a,b', badges: '' };
+  const r = A.buildSpot(v, null);
+  eq(r.dropped, 3);
+  ok(!('__dropped' in r.spot), '__dropped leaked');
+  eq(r.spot.photos.map((p) => p.url), ['https://ok.example/a.jpg']);
+  eq(r.spot.mapUrl, '');
+  eq(r.spot.lat, 43.1); eq(r.spot.rating, 4);
+  eq(ZK.candidates.validate(r.spot), []);
+});
+test('buildSpot: 空の緯度経度はNaNになりvalidateで弾かれる', () => {
+  const r = A.buildSpot({ name: 'x', prefectures: [1], lat: '', lng: '', photos: '', mapUrl: '', keywords: '', badges: '' }, null);
+  ok(ZK.candidates.validate(r.spot).length > 0);
+  eq(r.dropped, 0);
+});

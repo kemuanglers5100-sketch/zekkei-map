@@ -30,7 +30,7 @@
     }
     return out;
   }
-  ZK.admin = { parsePhotoLines, sanitizeCandidate };
+  ZK.admin = { parsePhotoLines, sanitizeCandidate, buildSpot };
 
   const checks = (name, list, cur) => list.map((v) => `<label class="chk"><input type="checkbox" name="${name}" value="${esc(v)}"${(cur || []).includes(v) ? ' checked' : ''}>${esc(v)}</label>`).join('');
   const blank = () => ({ name: '', yomi: '', prefectures: [], lat: '', lng: '', rating: 3, categories: [], seasons: [], description: '', access: '', photos: [], mapUrl: '', keywords: [], sources: [] });
@@ -56,10 +56,10 @@
       <div class="row" style="margin-top:16px"><button class="btn" type="submit">保存</button><button class="btn ghost" type="button" data-a="cancel">キャンセル</button></div></form>`;
   }
 
-  function readForm(form, orig) {
-    const fd = new FormData(form), g = (k) => String(fd.get(k) || '').trim();
-    const oldPhotos = (orig && orig.photos) || [];
-    const pp = parsePhotoLines(g('photos'), oldPhotos), photos = pp.photos;
+  // 純関数: フォームの値(文字列/配列)からスポットを組み立てる。除外したURL件数は別に返す
+  function buildSpot(v, orig) {
+    const g = (k) => String(v[k] == null ? '' : v[k]).trim();
+    const pp = parsePhotoLines(g('photos'), (orig && orig.photos) || []);
     const rawMap = g('mapUrl'), mapUrl = U.safeUrl(rawMap);
     const dropped = pp.dropped + (rawMap && !mapUrl ? 1 : 0);
     const labels = g('badges').split(/[,、]/).map((x) => x.trim()).filter(Boolean);
@@ -67,14 +67,20 @@
     const keep = oldSrc.filter((x) => !U.isBadgeKind(x.kind) || labels.includes(x.label));
     const add = labels.filter((l) => !keep.some((x) => x.label === l))
       .map((l) => ({ kind: U.kindOfBadge(l), label: l, url: '', year: new Date().getFullYear(), note: '' }));
-    return Object.assign({}, orig || {}, {
-      name: g('name'), yomi: g('yomi'), prefectures: fd.getAll('prefectures').map(Number),
+    const spot = Object.assign({}, orig || {}, {
+      name: g('name'), yomi: g('yomi'), prefectures: (v.prefectures || []).map(Number),
       lat: parseFloat(g('lat')), lng: parseFloat(g('lng')), rating: Number(g('rating')),
-      categories: fd.getAll('categories'), seasons: fd.getAll('seasons'),
-      description: g('description'), access: g('access'), photos, mapUrl,
+      categories: v.categories || [], seasons: v.seasons || [],
+      description: g('description'), access: g('access'), photos: pp.photos, mapUrl,
       keywords: g('keywords').split(/[,、]/).map((x) => x.trim()).filter(Boolean), sources: keep.concat(add),
-      __dropped: dropped,
     });
+    return { spot, dropped };
+  }
+  function readForm(form, orig) {
+    const fd = new FormData(form);
+    const v = { prefectures: fd.getAll('prefectures'), categories: fd.getAll('categories'), seasons: fd.getAll('seasons') };
+    ['name', 'yomi', 'lat', 'lng', 'rating', 'description', 'access', 'photos', 'mapUrl', 'keywords', 'badges'].forEach((k) => { v[k] = fd.get(k); });
+    return buildSpot(v, orig);
   }
 
   function download(name, text) {
