@@ -1,0 +1,7 @@
+[
+  { "name": "富士山", "prefectures": [19, 22], "lat": 35.3606, "lng": 138.7274,
+    "sources": [{ "kind": "video", "label": "動画で紹介", "url": "https://example.com/fuji", "year": 2026, "note": "リンクのみ" }] },
+  { "name": "サンプル新規の滝", "prefectures": [1], "lat": 43.5, "lng": 142.5, "categories": ["滝"], "seasons": ["夏"],
+    "sources": [{ "kind": "hyakusen", "label": "日本の滝百選", "url": "", "year": 2026, "note": "" }] },
+  { "name": "", "prefectures": [], "lat": 0, "lng": 0 }
+]

@@ -6,7 +6,7 @@
     const e = [];
     if (!c || !String(c.name || '').trim()) e.push('名前がありません');
     if (!c || !Array.isArray(c.prefectures) || !c.prefectures.length || c.prefectures.some((id) => !ZK.PREFS[id - 1])) e.push('都道府県が不正です');
-    if (!c || typeof c.lat !== 'number' || typeof c.lng !== 'number' || c.lat < 20 || c.lat > 46 || c.lng < 122 || c.lng > 154) e.push('緯度経度が日本の範囲外です');
+    if (!c || !Number.isFinite(c.lat) || !Number.isFinite(c.lng) || c.lat < 20 || c.lat > 46 || c.lng < 122 || c.lng > 154) e.push('緯度経度が日本の範囲外です');
     ((c && c.categories) || []).forEach((x) => { if (!ZK.CATEGORIES.includes(x)) e.push('不明なカテゴリ: ' + x); });
     ((c && c.seasons) || []).forEach((x) => { if (!ZK.SEASONS.includes(x)) e.push('不明な季節: ' + x); });
     return e;

@@ -19,7 +19,7 @@ ctx.ok = (v, msg) => { if (!v) throw new Error(msg || 'expected truthy'); };
 ctx.throws = (fn) => { try { fn(); } catch (e) { return; } throw new Error('expected to throw'); };
 
 const load = (f) => vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
-['data/prefectures.js', 'js/util.js', 'js/store.js', 'js/filter.js', 'js/candidates.js',
+['data/prefectures.js', 'js/util.js', 'js/store.js', 'js/filter.js', 'js/candidates.js', 'js/admin.js',
   'data/spots.js', 'data/photos.js', 'data/japan-map.js', 'js/map.js', 'tests/fixtures.js']
   .filter((f) => fs.existsSync(path.join(root, f)))
   .forEach(load);

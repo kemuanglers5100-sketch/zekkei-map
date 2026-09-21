@@ -35,3 +35,10 @@ test('mergeSources: 同じ出典は重複しない', () => {
   eq(m.sources.length, 2);
   eq(FX.A.sources.length, 1, '元は変更しない');
 });
+
+test('validate: NaN/Infinity/文字列の緯度経度は範囲外エラー', () => {
+  [NaN, Infinity, -Infinity, '43'].forEach((v) => {
+    ok(C.validate(Object.assign({}, base, { lat: v })).includes('緯度経度が日本の範囲外です'), 'lat ' + v);
+    ok(C.validate(Object.assign({}, base, { lng: v })).includes('緯度経度が日本の範囲外です'), 'lng ' + v);
+  });
+});
