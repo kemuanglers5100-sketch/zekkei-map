@@ -26,7 +26,7 @@
 - テスト: `node tests/run.js`
 - 地図データの再生成: `node tools/build-map.js`
 - 座標の照合: `node tools/verify-coords.js`
-- 写真の収集: `node tools/fetch-photos.js`(Wikimedia Commons。ライセンス表示が必要な写真は詳細ページに撮影者を表示します)
+- 写真の収集: `node tools/fetch-photos.js`(Wikimedia Commons。ライセンス表示が必要な写真は詳細ページに撮影者を表示します。`photos.generated.js` に出力し、`--write` を付けない限り `photos.js` は上書きしません)
 - 初期データは `data/spots.js`。組み込みデータを更新しても、個人の記録は消えません。
 
 ## 既知の制限
