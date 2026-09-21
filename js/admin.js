@@ -151,10 +151,11 @@
       if (form) form.addEventListener('submit', (e) => {
         e.preventDefault();
         const orig = editing !== 'new' ? app.spots().find((s) => s.id === editing) : null;
-        const spot = readForm(form, orig);
+        const { spot, dropped } = readForm(form, orig);
         const errs = ZK.candidates.validate(spot);
         if (errs.length) return alert(errs.join('\n'));
         store.save(spot); editing = null; app.rerender();
+        if (dropped) alert(`http/https以外のURLが${dropped}件あったため除外しました(URLはhttp://またはhttps://で始まるものだけ保存できます)`);
       });
       const readFile = (input, cb) => input.addEventListener('change', () => { const f = input.files[0]; if (f) f.text().then(cb); });
       readFile(root.querySelector('#importFile'), (text) => {
