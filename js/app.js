@@ -14,13 +14,16 @@
   function render(keepScroll) {
     const parts = location.hash.replace(/^#\/?/, '').split('/');
     const key = parts[0] || 'home';
-    const arg = decodeURIComponent(parts.slice(1).join('/'));
-    const v = ZK.views[key] || ZK.views.home;
+    const rawArg = parts.slice(1).join('/');
+    let arg;
+    try { arg = decodeURIComponent(rawArg); } catch (_) { arg = rawArg; }
+    const known = Object.prototype.hasOwnProperty.call(ZK.views, key);
+    const v = known ? ZK.views[key] : ZK.views.home;
     const el = $('view');
     el.innerHTML = v.render(arg);
     v.bind(el, arg);
     renderSeasons();
-    document.querySelectorAll('#tabbar a').forEach((a) => a.classList.toggle('on', a.dataset.r === (ZK.views[key] ? key : 'home')));
+    document.querySelectorAll('#tabbar a').forEach((a) => a.classList.toggle('on', a.dataset.r === (known ? key : 'home')));
     $('q').value = state.q;
     if (!keepScroll) window.scrollTo(0, 0);
   }
