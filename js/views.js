@@ -118,4 +118,52 @@
       if (memo) { memo.addEventListener('change', save); date.addEventListener('change', save); }
     },
   };
+  // ---- ランキング(全国総合 / 都道府県別 / 季節別) ----
+  views.ranking = {
+    render() {
+      const S = st(), all = ZK.app.spots();
+      const tabs = [['all', '全国総合'], ['pref', '都道府県別'], ['season', '季節別']]
+        .map(([k, l]) => `<button data-tab="${k}" class="${S.rankTab === k ? 'on' : ''}">${l}</button>`).join('');
+      const list = (rows, n) => rows.slice(0, n).map((s, i) => UI.rankRow(s, i + 1)).join('') || '<p class="empty">該当するスポットがありません。</p>';
+      let body;
+      if (S.rankTab === 'pref') {
+        const sel = `<label class="fsel">都道府県<select id="rankPref">${ZK.PREFS.map((p, i) => opt(i + 1, p.label, S.rankPref)).join('')}</select></label>`;
+        body = `${sel}<div class="panel">${list(F.rank(all, { prefId: S.rankPref }), 10)}</div>`;
+      } else if (S.rankTab === 'season') {
+        body = ZK.SEASONS.map((se) => `<div class="panel"><h2>${se}のTOP5</h2>${list(F.rank(all, { season: se }), 5)}</div>`).join('');
+      } else {
+        body = `<div class="panel"><h2>全国総合 TOP20</h2>${list(F.rank(all, {}), 20)}</div>`;
+      }
+      return `<h2>絶景ランキング</h2><div class="rank-tabs">${tabs}</div>${body}
+        <p class="hint">おすすめ度(★5=Sランク〜)が高い順。同点はバッジ(世界遺産・百選など)の多い順です。</p>`;
+    },
+    bind(el) {
+      el.querySelectorAll('[data-tab]').forEach((b) => b.addEventListener('click', () => { st().rankTab = b.dataset.tab; ZK.app.rerender(); }));
+      const sel = el.querySelector('#rankPref');
+      if (sel) sel.addEventListener('change', () => { st().rankPref = Number(sel.value); ZK.app.rerender(); });
+    },
+  };
+
+  // ---- どこ行く?(ランダム提案) ----
+  views.random = {
+    render() {
+      const S = st(), recs = ZK.app.records();
+      const pool = F.apply(ZK.app.spots(), { season: S.season, status: S.randomWant ? 'want' : '' }, recs);
+      const pick = pool.find((s) => s.id === S.pick);
+      return `<h2>どこ行く?</h2><div class="panel pick">
+        <p class="meta">候補: ${esc(seasonLabel())}の絶景 ${pool.length}件</p>
+        <label class="switch" style="justify-content:center"><input type="checkbox" id="wantOnly"${S.randomWant ? ' checked' : ''}> 「行きたい」に入れたものだけ</label>
+        <p><button class="btn" id="roll"${pool.length ? '' : ' disabled'}>🎲 決める!</button></p></div>
+        ${pick ? `<div class="grid">${UI.card(pick, recs[pick.id])}</div>` : ''}`;
+    },
+    bind(el) {
+      const S = st();
+      el.querySelector('#wantOnly').addEventListener('change', (e) => { S.randomWant = e.target.checked; S.pick = null; ZK.app.rerender(); });
+      el.querySelector('#roll').addEventListener('click', () => {
+        const pool = F.apply(ZK.app.spots(), { season: S.season, status: S.randomWant ? 'want' : '' }, ZK.app.records());
+        if (pool.length) S.pick = pool[Math.floor(Math.random() * pool.length)].id;
+        ZK.app.rerender();
+      });
+    },
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
