@@ -41,3 +41,13 @@ test('prefLabels / mapUrl', () => {
   ok(U.mapUrl(FX.A).includes('35.3606,138.7274'));
   eq(U.mapUrl({ mapUrl: 'https://x.test/', lat: 1, lng: 2 }), 'https://x.test/');
 });
+test('safeUrl: http(s)のみ許可', () => {
+  eq(U.safeUrl('https://a.test/x'), 'https://a.test/x');
+  eq(U.safeUrl('  HTTP://a.test '), 'HTTP://a.test');
+  ['javascript:alert(1)', 'JaVaScRiPt:x', 'data:text/html,x', '//evil.example', '', undefined, null, 5, {}].forEach((v) => eq(U.safeUrl(v), ''));
+});
+test('mapUrl: javascript:のmapUrlは無視して生成URLに戻す', () => {
+  const g = 'https://www.google.com/maps/search/?api=1&query=1,2';
+  eq(U.mapUrl({ mapUrl: 'javascript:alert(1)', lat: 1, lng: 2 }), g);
+  eq(U.mapUrl({ mapUrl: 'https://ok.test/m', lat: 1, lng: 2 }), 'https://ok.test/m');
+});

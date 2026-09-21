@@ -11,8 +11,8 @@
   // 写真がなければ、または読み込みに失敗したら季節色グラデーションに切り替える
   function photo(spot, cls, idx) {
     const p = (spot.photos || [])[idx || 0];
-    if (!p || !p.url) return fallback(spot, cls);
-    return `<img class="ph ${cls || ''}" loading="lazy" src="${esc(p.url)}" alt="${esc(spot.name)}" data-fb="${esc(fallback(spot, cls))}" onerror="ZK.ui.imgFail(this)">`;
+    if (!p || !U.safeUrl(p.url)) return fallback(spot, cls);
+    return `<img class="ph ${cls || ''}" loading="lazy" src="${esc(U.safeUrl(p.url))}" alt="${esc(spot.name)}" data-fb="${esc(fallback(spot, cls))}" onerror="ZK.ui.imgFail(this)">`;
   }
   function imgFail(img) { img.outerHTML = img.getAttribute('data-fb'); }
   const badges = (spot) => U.badgesOf(spot).map((b) => `<span class="badge">${esc(b)}</span>`).join('');

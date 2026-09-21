@@ -40,7 +40,8 @@
     return out;
   }
   const prefLabels = (spot) => (spot.prefectures || []).map((id) => ZK.PREFS[id - 1].label).join('・');
-  const mapUrl = (spot) => spot.mapUrl || `https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`;
+  const safeUrl = (u) => (typeof u === 'string' && /^https?:\/\//i.test(u.trim()) ? u.trim() : '');
+  const mapUrl = (spot) => safeUrl(spot.mapUrl) || `https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`;
 
-  ZK.util = { normalize, haversine, seasonOf, rankLetter, stars, esc, kindOfBadge, isBadgeKind, badgesOf, prefLabels, mapUrl };
+  ZK.util = { normalize, haversine, seasonOf, rankLetter, stars, esc, kindOfBadge, isBadgeKind, badgesOf, prefLabels, mapUrl, safeUrl };
 })(typeof window !== 'undefined' ? window : globalThis);

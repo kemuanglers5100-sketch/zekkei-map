@@ -94,10 +94,10 @@
       if (!s) return ZK.viewHelpers.notFound();
       const rec = ZK.app.store.record(s.id);
       const photos = (s.photos || []).length
-        ? `<div class="gallery">${s.photos.map((p, i) => `<figure>${UI.photo(s, 'big', i)}<figcaption>${esc(p.credit || '')} ${p.license ? `(${esc(p.license)})` : ''}${p.page ? ` <a href="${esc(p.page)}" target="_blank" rel="noopener">出典</a>` : ''}</figcaption></figure>`).join('')}</div>`
+        ? `<div class="gallery">${s.photos.map((p, i) => `<figure>${UI.photo(s, 'big', i)}<figcaption>${esc(p.credit || '')} ${p.license ? `(${esc(p.license)})` : ''}${U.safeUrl(p.page) ? ` <a href="${esc(U.safeUrl(p.page))}" target="_blank" rel="noopener">出典</a>` : ''}</figcaption></figure>`).join('')}</div>`
         : UI.fallback(s, 'big');
       const sources = (s.sources || []).length
-        ? `<h3>出典・実績</h3><ul>${s.sources.map((x) => `<li>${esc(x.label)}${x.year ? `(${esc(x.year)})` : ''}${x.url ? ` <a href="${esc(x.url)}" target="_blank" rel="noopener">リンク</a>` : ''}${x.note ? ` — ${esc(x.note)}` : ''}</li>`).join('')}</ul>` : '';
+        ? `<h3>出典・実績</h3><ul>${s.sources.map((x) => `<li>${esc(x.label)}${x.year ? `(${esc(x.year)})` : ''}${U.safeUrl(x.url) ? ` <a href="${esc(U.safeUrl(x.url))}" target="_blank" rel="noopener">リンク</a>` : ''}${x.note ? ` — ${esc(x.note)}` : ''}</li>`).join('')}</ul>` : '';
       return `<p><a class="more" href="javascript:history.back()">← 戻る</a></p>${photos}
         <h1>${esc(s.name)}</h1>
         <p class="meta">${esc(U.prefLabels(s))} · <span class="stars">${U.stars(s.rating)}</span> <span class="rank">${U.rankLetter(s.rating)}ランク</span></p>
