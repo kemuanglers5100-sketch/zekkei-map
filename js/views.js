@@ -46,4 +46,76 @@
     },
     bind() {},
   };
+  // ---- 一覧(検索・フィルター・並び替え) ----
+  const opt = (v, l, cur) => `<option value="${esc(v)}"${String(cur || '') === String(v) ? ' selected' : ''}>${esc(l)}</option>`;
+  const fsel = (key, label, opts) => `<label class="fsel">${label}<select data-f="${key}">${opts}</select></label>`;
+
+  views.list = {
+    render() {
+      const S = st(), all = ZK.app.spots(), recs = ZK.app.records();
+      let rows = F.apply(all, Object.assign({}, S.f, { q: S.q, season: S.season }), recs);
+      rows = S.sort === 'distance' && S.pos ? F.byDistance(rows, S.pos) : F.rank(rows, {});
+      const filters = [
+        fsel('prefId', '都道府県', opt('', 'すべて', S.f.prefId) + ZK.PREFS.map((p, i) => opt(i + 1, p.label, S.f.prefId)).join('')),
+        fsel('category', 'カテゴリ', opt('', 'すべて', S.f.category) + ZK.CATEGORIES.map((c) => opt(c, c, S.f.category)).join('')),
+        fsel('minRating', 'おすすめ度', opt('', 'すべて', S.f.minRating) + [5, 4, 3].map((r) => opt(r, `${U.rankLetter(r)}(★${r}以上)`, S.f.minRating)).join('')),
+        fsel('badge', '実績・バッジ', opt('', 'すべて', S.f.badge) + F.allBadges(all).map((b) => opt(b, b, S.f.badge)).join('')),
+        fsel('status', '記録', opt('', 'すべて', S.f.status) + opt('want', '行きたい', S.f.status) + opt('done', '行った', S.f.status)),
+        fsel('sort', '並び順', opt('rating', 'おすすめ順', S.sort) + opt('distance', '現在地から近い順', S.sort)),
+      ].join('');
+      const q = S.q ? `<p class="meta">「${esc(S.q)}」の検索結果 <a class="more" href="#/list" id="clearQ">クリア</a></p>` : '';
+      return `<h2>絶景をさがす(${esc(seasonLabel())}) — ${rows.length}件</h2>${q}<div class="filters">${filters}</div>${ZK.viewHelpers.grid(rows, recs)}`;
+    },
+    bind(el) {
+      const S = st();
+      el.querySelectorAll('[data-f]').forEach((x) => x.addEventListener('change', () => {
+        const k = x.dataset.f;
+        if (k === 'sort') {
+          S.sort = x.value;
+          if (x.value === 'distance' && !S.pos) {
+            if (!navigator.geolocation) { alert('この環境では現在地を取得できません'); S.sort = 'rating'; return ZK.app.rerender(); }
+            navigator.geolocation.getCurrentPosition(
+              (p) => { S.pos = { lat: p.coords.latitude, lng: p.coords.longitude }; ZK.app.rerender(); },
+              () => { alert('現在地を取得できませんでした(位置情報の許可と、HTTPSでの表示が必要です)'); S.sort = 'rating'; ZK.app.rerender(); });
+            return;
+          }
+        } else S.f[k] = x.value;
+        ZK.app.rerender();
+      }));
+      const c = el.querySelector('#clearQ');
+      if (c) c.addEventListener('click', (e) => { e.preventDefault(); S.q = ''; ZK.app.rerender(); });
+    },
+  };
+
+  // ---- 詳細 ----
+  views.spot = {
+    render(id) {
+      const s = ZK.app.spots().find((x) => x.id === id);
+      if (!s) return ZK.viewHelpers.notFound();
+      const rec = ZK.app.store.record(s.id);
+      const photos = (s.photos || []).length
+        ? `<div class="gallery">${s.photos.map((p, i) => `<figure>${UI.photo(s, 'big', i)}<figcaption>${esc(p.credit || '')} ${p.license ? `(${esc(p.license)})` : ''}${p.page ? ` <a href="${esc(p.page)}" target="_blank" rel="noopener">出典</a>` : ''}</figcaption></figure>`).join('')}</div>`
+        : UI.fallback(s, 'big');
+      const sources = (s.sources || []).length
+        ? `<h3>出典・実績</h3><ul>${s.sources.map((x) => `<li>${esc(x.label)}${x.year ? `(${esc(x.year)})` : ''}${x.url ? ` <a href="${esc(x.url)}" target="_blank" rel="noopener">リンク</a>` : ''}${x.note ? ` — ${esc(x.note)}` : ''}</li>`).join('')}</ul>` : '';
+      return `<p><a class="more" href="javascript:history.back()">← 戻る</a></p>${photos}
+        <h1>${esc(s.name)}</h1>
+        <p class="meta">${esc(U.prefLabels(s))} · <span class="stars">${U.stars(s.rating)}</span> <span class="rank">${U.rankLetter(s.rating)}ランク</span></p>
+        <p class="tags">${(s.categories || []).map((c) => `<span class="tag">${esc(c)}</span>`).join('')}${UI.badges(s)}</p>
+        <div class="card-actions" style="padding:8px 0">${UI.statusButtons(s, rec)}</div>
+        <div class="panel"><h3>説明</h3><p>${esc(s.description)}</p>
+          <h3>ベストシーズン</h3><p>${(s.seasons || []).map((x) => `<span class="tag">${esc(x)}</span>`).join(' ')}</p>
+          <h3>アクセス</h3><p>${esc(s.access)}</p>
+          <h3>地図</h3><iframe class="gmap" loading="lazy" src="https://maps.google.com/maps?q=${s.lat},${s.lng}&z=13&output=embed"></iframe>
+          <p><a class="btn" href="${esc(U.mapUrl(s))}" target="_blank" rel="noopener">Googleマップで開く</a></p>${sources}</div>
+        <div class="panel form"><h3>メモ</h3>
+          <label class="l">行った日</label><input type="date" id="visitedAt" value="${esc(rec.visitedAt)}">
+          <label class="l">ひとことメモ</label><textarea id="memo" rows="3" placeholder="次に行くときのメモ、感想など">${esc(rec.memo)}</textarea></div>`;
+    },
+    bind(el, id) {
+      const save = () => ZK.app.store.setRecord(id, { memo: el.querySelector('#memo').value, visitedAt: el.querySelector('#visitedAt').value });
+      const memo = el.querySelector('#memo'), date = el.querySelector('#visitedAt');
+      if (memo) { memo.addEventListener('change', save); date.addEventListener('change', save); }
+    },
+  };
 })(typeof window !== 'undefined' ? window : globalThis);
