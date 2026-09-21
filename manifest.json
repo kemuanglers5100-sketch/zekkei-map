@@ -1,0 +1,10 @@
+{
+  "name": "日本全国絶景マップ",
+  "short_name": "絶景マップ",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e6fd9",
+  "icons": [{ "src": "icons/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }]
+}
