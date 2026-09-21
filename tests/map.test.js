@@ -14,3 +14,8 @@ test('project: 全て地図の範囲内(沖縄は挿入位置)', () => {
     ok(x >= 0 && x <= ZK.MAP.W && y >= 0 && y <= ZK.MAP.H, `${la},${lo} → ${x},${y}`);
   });
 });
+test('MAP: inset(沖縄の枠)がviewBox内に収まる', () => {
+  const i = ZK.MAP.inset;
+  ok(i.x >= 0 && i.y >= 0, `x=${i.x} y=${i.y}`);
+  ok(i.x + i.w <= ZK.MAP.W && i.y + i.h <= ZK.MAP.H, `right=${i.x + i.w} bottom=${i.y + i.h}`);
+});

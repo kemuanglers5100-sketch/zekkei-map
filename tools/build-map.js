@@ -53,11 +53,15 @@ const idOf = (f) => Number(f.properties.id);
   const ids = Object.keys(byId).map(Number).sort((a, b) => a - b);
   if (ids.length !== 47 || ids[0] !== 1 || ids[46] !== 47) throw new Error('都道府県が47件揃いません: ' + ids.length);
   const b = bboxOf[47], pad = 6;
+  const H = Math.ceil((maxY - minY) * k);
+  // 沖縄の枠: 余白padを付けつつ viewBox(0..W, 0..H)内に収める
+  const ix0 = Math.max(0, (b[0] - minX) * k - pad), iy0 = Math.max(0, (b[2] - minY) * k - pad);
+  const ix1 = Math.min(W, (b[1] - minX) * k + pad), iy1 = Math.min(H, (b[3] - minY) * k + pad);
+  const inset = { x: +ix0.toFixed(1), y: +iy0.toFixed(1), w: +(ix1 - ix0).toFixed(1), h: +(iy1 - iy0).toFixed(1) };
   const map = {
-    W, H: Math.ceil((maxY - minY) * k),
+    W, H,
     prefs: ids.map((id) => ({ id, d: byId[id] })),
-    inset: { x: +((b[0] - minX) * k - pad).toFixed(1), y: +((b[2] - minY) * k - pad).toFixed(1),
-      w: +((b[1] - b[0]) * k + pad * 2).toFixed(1), h: +((b[3] - b[2]) * k + pad * 2).toFixed(1) },
+    inset,
     proj: { lon0: LON0, lat0: LAT0, c: C, k, ox: minX, oy: minY },
     okinawa: OKI,
   };
