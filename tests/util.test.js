@@ -18,6 +18,18 @@ test('rankLetter / stars', () => {
   eq([5, 4, 3, 2, 1].map(U.rankLetter), ['S', 'A', 'B', 'C', 'C']);
   eq(U.stars(4), '★★★★☆');
 });
+test('stars: 範囲外・非整数の評価でも例外を投げずクランプする', () => {
+  eq(U.stars(10), '★★★★★');
+  eq(U.stars(-3), '☆☆☆☆☆');
+  eq(U.stars(0), '☆☆☆☆☆');
+  eq(U.stars(3.6), '★★★★☆');
+  eq(U.stars(NaN), '☆☆☆☆☆');
+  eq(U.stars(undefined), '☆☆☆☆☆');
+});
+test('prefLabels: 不正な都道府県idでも例外を投げず無視する', () => {
+  eq(U.prefLabels({ prefectures: [99, 19] }), '山梨');
+  eq(U.prefLabels({ prefectures: [0, -1, 48] }), '');
+});
 test('esc', () => { eq(U.esc('<a href="x">&\'</a>'), '&lt;a href=&quot;x&quot;&gt;&amp;&#39;&lt;/a&gt;'); });
 test('kindOfBadge', () => {
   eq(U.kindOfBadge('世界遺産'), 'unesco');

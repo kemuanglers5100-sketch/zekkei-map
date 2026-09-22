@@ -2,18 +2,24 @@
   const ZK = (root.ZK = root.ZK || {});
   const U = ZK.util;
 
+  const arr = (x) => (Array.isArray(x) ? x : []);
   function validate(c) {
     const e = [];
     if (!c || !String(c.name || '').trim()) e.push('名前がありません');
     if (!c || !Array.isArray(c.prefectures) || !c.prefectures.length || c.prefectures.some((id) => !ZK.PREFS[id - 1])) e.push('都道府県が不正です');
     if (!c || !Number.isFinite(c.lat) || !Number.isFinite(c.lng) || c.lat < 20 || c.lat > 46 || c.lng < 122 || c.lng > 154) e.push('緯度経度が日本の範囲外です');
-    ((c && c.categories) || []).forEach((x) => { if (!ZK.CATEGORIES.includes(x)) e.push('不明なカテゴリ: ' + x); });
-    ((c && c.seasons) || []).forEach((x) => { if (!ZK.SEASONS.includes(x)) e.push('不明な季節: ' + x); });
+    if (c && 'rating' in c && !(Number.isFinite(c.rating) && c.rating >= 1 && c.rating <= 5)) e.push('評価(rating)が不正です');
+    arr(c && c.categories).forEach((x) => { if (!ZK.CATEGORIES.includes(x)) e.push('不明なカテゴリ: ' + x); });
+    arr(c && c.seasons).forEach((x) => { if (!ZK.SEASONS.includes(x)) e.push('不明な季節: ' + x); });
     return e;
   }
   function normalize(c) {
-    return Object.assign({ yomi: '', categories: [], seasons: [], rating: 3, description: '', access: '',
+    const n = Object.assign({ yomi: '', categories: [], seasons: [], rating: 3, description: '', access: '',
       photos: [], mapUrl: '', keywords: [], sources: [] }, c);
+    n.categories = arr(n.categories);
+    n.seasons = arr(n.seasons);
+    n.prefectures = arr(n.prefectures).map(Number);
+    return n;
   }
   // 重複: 同名 or 300m以内 / 要確認: 名前の部分一致 or 2km以内 / それ以外は新規
   function classify(cands, existing) {

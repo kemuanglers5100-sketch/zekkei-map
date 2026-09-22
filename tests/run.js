@@ -20,7 +20,7 @@ ctx.throws = (fn) => { try { fn(); } catch (e) { return; } throw new Error('expe
 
 const load = (f) => vm.runInContext(fs.readFileSync(path.join(root, f), 'utf8'), ctx, { filename: f });
 ['data/prefectures.js', 'js/util.js', 'js/store.js', 'js/filter.js', 'js/candidates.js', 'js/admin.js',
-  'data/spots.js', 'data/photos.js', 'data/japan-map.js', 'js/map.js', 'tests/fixtures.js']
+  'data/spots.js', 'data/photos.js', 'data/japan-map.js', 'js/map.js', 'js/ui.js', 'js/views.js', 'tests/fixtures.js']
   .filter((f) => fs.existsSync(path.join(root, f)))
   .forEach(load);
 fs.readdirSync(__dirname).filter((f) => f.endsWith('.test.js')).sort()

@@ -6,7 +6,7 @@
   function fallback(spot, cls) {
     const season = (spot.seasons || [])[0] || '春';
     const emoji = EMOJI[(spot.categories || [])[0]] || '🗾';
-    return `<div class="ph fb ${cls || ''}" data-season="${season}"><span>${emoji}</span></div>`;
+    return `<div class="ph fb ${cls || ''}" data-season="${esc(season)}"><span>${emoji}</span></div>`;
   }
   // 写真がなければ、または読み込みに失敗したら季節色グラデーションに切り替える
   function photo(spot, cls, idx) {
@@ -26,7 +26,7 @@
     return `<article class="card"><a class="card-link" href="#/spot/${esc(spot.id)}">${photo(spot)}
       <div class="card-body"><h3>${esc(spot.name)}</h3>
       <p class="meta">${esc(U.prefLabels(spot))}${dist} · <span class="stars">${U.stars(spot.rating)}</span> <span class="rank">${U.rankLetter(spot.rating)}</span></p>
-      <p class="tags">${(spot.seasons || []).map((s) => `<span class="tag">${s}</span>`).join('')}${badges(spot)}</p></div></a>
+      <p class="tags">${(spot.seasons || []).map((s) => `<span class="tag">${esc(s)}</span>`).join('')}${badges(spot)}</p></div></a>
       <div class="card-actions">${statusButtons(spot, rec)}</div></article>`;
   }
   function rankRow(spot, no) {

@@ -80,8 +80,10 @@ async function photosFor(spot) {
   console.log(`
 写真あり: ${n}/${spots.length}件 → data/photos.generated.js`);
   console.log(`ERR spots: ${errIds.length}${errIds.length ? ' (ids ' + errIds.join(', ') + ')' : ''}`);
-  const bad = errIds.length > 0 || n === 0;
+  const limited = LIMIT > 0 && spots.length < ctx.ZK.SPOTS_BASE.length;
+  const bad = errIds.length > 0 || n === 0 || limited;
   if (WRITE) {
+    if (limited) { console.error('--write を拒否: FETCH_PHOTOS_LIMIT が設定されているため、data/photos.js の切り詰め上書きを防ぐために拒否します。'); process.exit(1); }
     if (bad) { console.error('--write を拒否: エラーがあるか写真が0件です。data/photos.js は変更していません。'); process.exit(1); }
     const dest = path.join(root, 'data', 'photos.js');
     if (fs.existsSync(dest)) {

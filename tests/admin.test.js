@@ -21,6 +21,12 @@ test('sanitizeCandidate: mapUrl/photos/sourcesを無害化', () => {
 test('sanitizeCandidate: 項目がなければ追加しない', () => {
   eq(Object.keys(A.sanitizeCandidate({ name: 'x' })), ['name']);
 });
+test('sanitizeCandidate: idとuserを除去し、既存スポットの上書きを防ぐ', () => {
+  const s = A.sanitizeCandidate({ id: 's01', user: true, name: 'x', lat: 1, lng: 2 });
+  ok(!('id' in s), 'id leaked');
+  ok(!('user' in s), 'user leaked');
+  eq(s.name, 'x');
+});
 test('サンプル候補: 重複/新規/不正の判定とhttps出典の保持', () => {
   // tests/sample-candidates.json と同内容(vm内ではfsが使えないため)
   const cands = [

@@ -3,6 +3,7 @@
   const views = (ZK.views = ZK.views || {});
   let editing = null;   // null | 'new' | スポットid
   let cls = null;       // 候補の判定結果(classifyの戻り値)
+  let hashListenerAttached = false; // 画面遷移(hashchange)でeditingとclsを捨てるためのリスナーを一度だけ張る
 
 
   // ---- URLサニタイズ(純関数。テスト用に ZK.admin で公開) ----
@@ -19,6 +20,7 @@
   }
   function sanitizeCandidate(c) {
     const out = Object.assign({}, c);
+    delete out.id; delete out.user;
     if ('mapUrl' in out) out.mapUrl = U.safeUrl(out.mapUrl);
     if ('photos' in out) {
       out.photos = (Array.isArray(out.photos) ? out.photos : []).filter((p) => p && typeof p === 'object')
@@ -118,6 +120,12 @@
         <h2>登録スポット(${all.length}件)</h2><div style="overflow-x:auto"><table class="tbl"><tr><th>名前</th><th>県</th><th>評価</th><th></th></tr>${rows}</table></div></div>`;
     },
     bind(el) {
+      if (!hashListenerAttached) {
+        hashListenerAttached = true;
+        // admin画面から離れる(ハッシュが変わる)ときにediting/clsを破棄する。
+        // rerender()はrender(true)を直接呼びlocation.hashに触れないため、通常の画面内操作では発火しない。
+        window.addEventListener('hashchange', () => { editing = null; cls = null; });
+      }
       const app = ZK.app, store = app.store, root = el.querySelector('#adminRoot');
       root.addEventListener('click', (e) => {
         const b = e.target.closest('[data-a]');
@@ -157,7 +165,10 @@
         store.save(spot); editing = null; app.rerender();
         if (dropped) alert(`http/https以外のURLが${dropped}件あったため除外しました(URLはhttp://またはhttps://で始まるものだけ保存できます)`);
       });
-      const readFile = (input, cb) => input.addEventListener('change', () => { const f = input.files[0]; if (f) f.text().then(cb); });
+      const readFile = (input, cb) => input.addEventListener('change', () => {
+        const f = input.files[0];
+        if (f) f.text().then(cb).catch(() => alert('ファイルを読み込めません'));
+      });
       readFile(root.querySelector('#importFile'), (text) => {
         if (!confirm('現在の記録・追加・編集をすべて置き換えます。よろしいですか?')) return;
         try { store.importJSON(text); alert('読み込みました'); app.rerender(); } catch (err) { alert(err.message); }

@@ -13,6 +13,26 @@ test('normalize: 既定値を補う', () => {
   const n = C.normalize(base);
   eq(n.rating, 3); eq(n.photos, []); eq(n.sources, []);
 });
+test('validate: ratingが1..5の数値でなければエラー(0,10,NaN,文字列)', () => {
+  [0, 10, NaN, '3'].forEach((v) => {
+    ok(C.validate(Object.assign({}, base, { rating: v })).includes('評価(rating)が不正です'), 'rating ' + v);
+  });
+});
+test('validate: rating 1..5は許容、未指定でもエラーにしない', () => {
+  [1, 2, 3, 4, 5].forEach((v) => eq(C.validate(Object.assign({}, base, { rating: v })), []));
+  eq(C.validate(base), []); // ratingフィールドなし
+});
+test('validate/normalize: categories/seasonsが配列でなくても例外を投げない', () => {
+  const bad = Object.assign({}, base, { categories: 'not-an-array', seasons: 123 });
+  const errs = C.validate(bad); // 例外を投げなければOK(不正な型は無視される)
+  eq(Array.isArray(errs), true);
+  const n = C.normalize(bad);
+  eq(n.categories, []); eq(n.seasons, []);
+});
+test('normalize: prefecturesを数値に揃える(文字列混在でも)', () => {
+  const n = C.normalize(Object.assign({}, base, { prefectures: ['1', 2] }));
+  eq(n.prefectures, [1, 2]);
+});
 test('classify: 同名は重複', () => {
   const r = C.classify([Object.assign({}, base, { name: '富士山', lat: 35.0, lng: 138.0 })], [FX.A]);
   eq(r[0].kind, 'duplicate'); eq(r[0].match.id, 'a');

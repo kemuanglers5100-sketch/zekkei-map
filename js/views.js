@@ -98,7 +98,7 @@
         : UI.fallback(s, 'big');
       const sources = (s.sources || []).length
         ? `<h3>出典・実績</h3><ul>${s.sources.map((x) => `<li>${esc(x.label)}${x.year ? `(${esc(x.year)})` : ''}${U.safeUrl(x.url) ? ` <a href="${esc(U.safeUrl(x.url))}" target="_blank" rel="noopener">リンク</a>` : ''}${x.note ? ` — ${esc(x.note)}` : ''}</li>`).join('')}</ul>` : '';
-      return `<p><a class="more" href="javascript:history.back()">← 戻る</a></p>${photos}
+      return `<p><button class="more" type="button" data-a="back">← 戻る</button></p>${photos}
         <h1>${esc(s.name)}</h1>
         <p class="meta">${esc(U.prefLabels(s))} · <span class="stars">${U.stars(s.rating)}</span> <span class="rank">${U.rankLetter(s.rating)}ランク</span></p>
         <p class="tags">${(s.categories || []).map((c) => `<span class="tag">${esc(c)}</span>`).join('')}${UI.badges(s)}</p>
@@ -106,13 +106,15 @@
         <div class="panel"><h3>説明</h3><p>${esc(s.description)}</p>
           <h3>ベストシーズン</h3><p>${(s.seasons || []).map((x) => `<span class="tag">${esc(x)}</span>`).join(' ')}</p>
           <h3>アクセス</h3><p>${esc(s.access)}</p>
-          <h3>地図</h3><iframe class="gmap" loading="lazy" src="https://maps.google.com/maps?q=${s.lat},${s.lng}&z=13&output=embed"></iframe>
+          <h3>地図</h3><iframe class="gmap" loading="lazy" src="https://maps.google.com/maps?q=${Number(s.lat)},${Number(s.lng)}&z=13&output=embed"></iframe>
           <p><a class="btn" href="${esc(U.mapUrl(s))}" target="_blank" rel="noopener">Googleマップで開く</a></p>${sources}</div>
         <div class="panel form"><h3>メモ</h3>
           <label class="l">行った日</label><input type="date" id="visitedAt" value="${esc(rec.visitedAt)}">
           <label class="l">ひとことメモ</label><textarea id="memo" rows="3" placeholder="次に行くときのメモ、感想など">${esc(rec.memo)}</textarea></div>`;
     },
     bind(el, id) {
+      const back = el.querySelector('[data-a="back"]');
+      if (back) back.addEventListener('click', () => history.back());
       const save = () => ZK.app.store.setRecord(id, { memo: el.querySelector('#memo').value, visitedAt: el.querySelector('#visitedAt').value });
       const memo = el.querySelector('#memo'), date = el.querySelector('#visitedAt');
       if (memo) { memo.addEventListener('change', save); date.addEventListener('change', save); }

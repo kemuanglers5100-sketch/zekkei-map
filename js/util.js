@@ -21,7 +21,10 @@
     return m >= 3 && m <= 5 ? '春' : m >= 6 && m <= 8 ? '夏' : m >= 9 && m <= 11 ? '秋' : '冬';
   }
   const rankLetter = (r) => (r >= 5 ? 'S' : r >= 4 ? 'A' : r >= 3 ? 'B' : 'C');
-  const stars = (r) => '★'.repeat(r) + '☆'.repeat(5 - r);
+  const stars = (r) => {
+    const n = Math.max(0, Math.min(5, Math.round(Number(r) || 0)));
+    return '★'.repeat(n) + '☆'.repeat(5 - n);
+  };
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, (c) =>
       ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -39,7 +42,7 @@
     (spot.sources || []).forEach((s) => { if (isBadgeKind(s.kind) && !out.includes(s.label)) out.push(s.label); });
     return out;
   }
-  const prefLabels = (spot) => (spot.prefectures || []).map((id) => ZK.PREFS[id - 1].label).join('・');
+  const prefLabels = (spot) => (spot.prefectures || []).map((id) => (ZK.PREFS[id - 1] || {}).label).filter(Boolean).join('・');
   const safeUrl = (u) => (typeof u === 'string' && /^https?:\/\//i.test(u.trim()) ? u.trim() : '');
   const mapUrl = (spot) => safeUrl(spot.mapUrl) || `https://www.google.com/maps/search/?api=1&query=${spot.lat},${spot.lng}`;
 

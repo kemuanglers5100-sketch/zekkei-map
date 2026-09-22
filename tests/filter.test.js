@@ -38,6 +38,11 @@ test('rank: 評価の高い順', () => {
   eq(F.rank(L, {})[0].id, 'a');
   eq(F.rank(L, { season: '春' }).map((s) => s.id), ['b']);
 });
+test('rank: 名前がないスポットが混ざっても例外を投げない', () => {
+  const noName = Object.assign({}, FX.B, { id: 'noname', name: undefined, rating: 4 });
+  const r = F.rank([FX.A, noName, FX.C], {});
+  eq(r.map((s) => s.id).includes('noname'), true);
+});
 test('byDistance: 東京から近い順', () => {
   const r = F.byDistance(L, { lat: 35.68, lng: 139.77 });
   eq(ids(r), ['c', 'a', 'b']);

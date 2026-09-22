@@ -37,7 +37,7 @@
   function rank(spots, opts) {
     opts = opts || {};
     return apply(spots, { season: opts.season, prefId: opts.prefId }).sort((a, b) =>
-      b.rating - a.rating || U.badgesOf(b).length - U.badgesOf(a).length || a.name.localeCompare(b.name, 'ja'));
+      b.rating - a.rating || U.badgesOf(b).length - U.badgesOf(a).length || (a.name || '').localeCompare(b.name || '', 'ja'));
   }
   function byDistance(spots, pos) {
     return spots.map((s) => Object.assign({}, s, { distanceKm: U.haversine(pos, s) }))

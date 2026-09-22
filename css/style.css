@@ -55,7 +55,7 @@ h2{font-size:18px;margin-bottom:12px}
 .st.on[data-status="want"]{background:var(--blue);border-color:var(--blue);color:#fff}
 .st.on[data-status="done"]{background:var(--green);border-color:var(--green);color:#fff}
 .empty{color:var(--sub);padding:24px 0;text-align:center}
-.more{display:inline-block;margin-top:12px;color:var(--blue);font-weight:600}
+.more{display:inline-block;margin-top:12px;color:var(--blue);font-weight:600;border:0;background:none;padding:0;cursor:pointer}
 .tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;display:flex;background:#fff;border-top:1px solid var(--line);padding-bottom:env(safe-area-inset-bottom)}
 .tabbar a{flex:1;display:flex;flex-direction:column;align-items:center;gap:2px;padding:8px 0;font-size:18px;color:var(--sub)}
 .tabbar a span{font-size:10px}.tabbar a.on{color:var(--blue);font-weight:700}
